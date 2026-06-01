@@ -211,7 +211,7 @@ class FRC_Spider
 
             $urls = $this->extractUrlsFromJson($jsonData, $jsonPath, $urlField);
             if (empty($urls)) {
-                $jsonPreview = json_encode(array_slice($jsonData, 0, 3), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                $jsonPreview = json_encode($jsonData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 $jsonPreview = mb_substr($jsonPreview, 0, 1000);
                 return ['code' => FRC_ApiError::FAIL, 'msg' => '未从API响应中提取到URL。请检查JSON路径和URL字段配置。当前JSON路径: ' . $jsonPath . ', URL字段: ' . $urlField . '。API响应预览: ' . htmlspecialchars($jsonPreview)];
             }
