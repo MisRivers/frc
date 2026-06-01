@@ -100,6 +100,9 @@ function frc_options_add_edit()
                     <input type="radio" name="collect_type"
                            value="single" <?php esc_attr_e( isset($option) ? ($option['collect_type'] == 'single' ? 'checked' : '') : ''); ?> >
                     详情采集配置
+                    <input type="radio" name="collect_type"
+                           value="api" <?php esc_attr_e( isset($option) ? ($option['collect_type'] == 'api' ? 'checked' : '') : ''); ?> >
+                    API列表采集
                     <?php if ($frc_validation_all_collect){ ?>
                     <input type="radio" name="collect_type"
                            value="all" <?php esc_attr_e( isset($option) ? ($option['collect_type'] == 'all' ? 'checked' : '') : ''); ?> >
@@ -108,6 +111,7 @@ function frc_options_add_edit()
                     <p>全站采集: 采集规则处不填</p>
                     <?php }?>
                     <p>列表可直接写采集地址. 详情只写规则, 采集地址在使用的时候填写即可.</p>
+                    <p>API列表采集: 采集地址填API接口地址,采集范围填JSON路径(如:data.list),采集规则填URL字段名(如:url)</p>
                 </td>
             </tr>
             <?php if (get_option(FRC_Validation::FRC_VALIDATION_RENDERING)) { ?>

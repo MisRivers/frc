@@ -93,6 +93,19 @@
         }, '.spider-progress-bar', '.list-spider-run-button');
     });
 
+    $('.api-list-spider-run-button').on('click', function(){
+        if(!confirm("API列表爬取时间会久点, 请耐心等待...")){
+            return;
+        }
+
+        var option_id = $(this).attr('data-id');
+
+        ajax_collect_request_tool(request_url, {
+            action_func: 'api_list_page',
+            option_id: option_id,
+        }, '.spider-progress-bar', '.api-list-spider-run-button');
+    });
+
     $('.history-page-spider-run-button').on('click', function(){
         if(!confirm("请核实输入信息.")){
             return;
@@ -426,7 +439,7 @@
     });
 
     $('input[type=radio][name=collect_type]').change(function () {
-        if (this.value == 'list') {
+        if (this.value == 'list' || this.value == 'api') {
             $('.collect_type_radio_change').show();
             console.log(1);
         }

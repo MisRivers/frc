@@ -187,7 +187,7 @@ class FRC_Options
         if ($collect_name == ''){
             return ['code' => FRC_ApiError::FAIL, 'msg' => '给你的配置写个名字吧, 着啥急'];
         }
-        if ($collect_type == 'list'){
+        if ($collect_type == 'list' || $collect_type == 'api'){
             if ($collect_list_url == ''){
                 return ['code' => FRC_ApiError::FAIL, 'msg' => '请填写采集地址.'];
             }
@@ -665,6 +665,9 @@ class FRC_Configuration_List_Table extends WP_List_Table
                         break;
                     case 'single':
                         return esc_html('详情采集');
+                        break;
+                    case 'api':
+                        return esc_html('API列表采集');
                         break;
                     case 'all':
                         return esc_html('全站采集');
