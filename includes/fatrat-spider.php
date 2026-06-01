@@ -173,7 +173,8 @@ class FRC_Spider
             'timeout' => 30,
             'verify' => false,
             'headers' => [
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+                'Accept' => 'application/json'
             ]
         ]);
 
@@ -183,7 +184,8 @@ class FRC_Spider
                 'verify' => false,
                 'headers' => [
                     'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-                    'Cookie' => $option['collect_cookie']
+                    'Cookie' => $option['collect_cookie'],
+                    'Accept' => 'application/json'
                 ]
             ]);
         }
@@ -195,14 +197,23 @@ class FRC_Spider
                 return ['code' => FRC_ApiError::FAIL, 'msg' => 'API请求失败，HTTP状态码: ' . $statusCode];
             }
 
-            $jsonData = json_decode((string)$response->getBody(), true);
+            $responseBody = (string)$response->getBody();
+            $jsonData = json_decode($responseBody, true);
+            
             if (json_last_error() !== JSON_ERROR_NONE) {
-                return ['code' => FRC_ApiError::FAIL, 'msg' => 'JSON解析失败'];
+                $preview = mb_substr($responseBody, 0, 500);
+                return ['code' => FRC_ApiError::FAIL, 'msg' => 'JSON解析失败。响应预览: ' . htmlspecialchars($preview)];
+            }
+
+            if (empty($jsonData)) {
+                return ['code' => FRC_ApiError::FAIL, 'msg' => 'API返回数据为空'];
             }
 
             $urls = $this->extractUrlsFromJson($jsonData, $jsonPath, $urlField);
             if (empty($urls)) {
-                return ['code' => FRC_ApiError::FAIL, 'msg' => '未从API响应中提取到URL'];
+                $jsonPreview = json_encode(array_slice($jsonData, 0, 3), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+                $jsonPreview = mb_substr($jsonPreview, 0, 1000);
+                return ['code' => FRC_ApiError::FAIL, 'msg' => '未从API响应中提取到URL。请检查JSON路径和URL字段配置。当前JSON路径: ' . $jsonPath . ', URL字段: ' . $urlField . '。API响应预览: ' . htmlspecialchars($jsonPreview)];
             }
 
             $config = new stdClass();
@@ -244,12 +255,32 @@ class FRC_Spider
     {
         $data = $jsonData;
 
-        $pathParts = explode('.', $jsonPath);
-        foreach ($pathParts as $part) {
-            if (isset($data[$part])) {
-                $data = $data[$part];
+        if (empty($jsonPath)) {
+            if (is_array($jsonData)) {
+                $data = $jsonData;
             } else {
                 return [];
+            }
+        } else {
+            $pathParts = explode('.', $jsonPath);
+            foreach ($pathParts as $part) {
+                $part = trim($part);
+                
+                if (preg_match('/^(\w+)\[(\d+)\]$/', $part, $matches)) {
+                    $key = $matches[1];
+                    $index = (int)$matches[2];
+                    if (isset($data[$key]) && is_array($data[$key]) && isset($data[$key][$index])) {
+                        $data = $data[$key][$index];
+                    } else {
+                        return [];
+                    }
+                } else {
+                    if (isset($data[$part])) {
+                        $data = $data[$part];
+                    } else {
+                        return [];
+                    }
+                }
             }
         }
 
@@ -259,10 +290,26 @@ class FRC_Spider
 
         $urls = [];
         foreach ($data as $item) {
+            if (!is_array($item) && !is_object($item)) {
+                continue;
+            }
+            
+            if (is_object($item)) {
+                $item = (array)$item;
+            }
+            
             if (isset($item[$urlField])) {
                 $url = $item[$urlField];
-                if (filter_var($url, FILTER_VALIDATE_URL)) {
-                    $urls[] = $url;
+                $url = trim($url);
+                
+                if (!empty($url)) {
+                    if (filter_var($url, FILTER_VALIDATE_URL)) {
+                        $urls[] = $url;
+                    } elseif (strpos($url, 'http') === 0) {
+                        $urls[] = $url;
+                    } elseif (strpos($url, '/') === 0) {
+                        $urls[] = $url;
+                    }
                 }
             }
         }
