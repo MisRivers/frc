@@ -276,6 +276,9 @@ const cronItems = computed(() => [
   { key: 'release', title: t('kit.cronRelease.title'), desc: t('kit.cronRelease.desc') }, // 定时发布 / 定时将已采集数据发布到 WordPress
 ])
 const cronOptionList = computed(() => ({
+  oneminutes: t('kit.cronOptions.oneminutes'), // 每1分钟
+  threeminutes: t('kit.cronOptions.threeminutes'), // 每3分钟
+  fiveminutes: t('kit.cronOptions.fiveminutes'), // 每5分钟
   fifteenminutes: t('kit.cronOptions.fifteenminutes'), // 每15分钟
   halfhour: t('kit.cronOptions.halfhour'), // 每30分钟
   hourly: t('kit.cronOptions.hourly'), // 每小时
