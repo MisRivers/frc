@@ -383,6 +383,9 @@ add_action('wp_ajax_frc_version_mode', function () {
  */
 function frc_more_schedules() {
     return array(
+        'oneminutes' => array('interval' => 60, 'display' => '每隔一分钟'),
+        'threeminutes' => array('interval' => 180, 'display' => '每隔三分钟'),
+        'fiveminutes' => array('interval' => 300, 'display' => '每隔五分钟'),
         'fifteenminutes' => array('interval' => 900, 'display' => '每隔十五分钟'),
         'halfhour' => array('interval' => 1800, 'display' => '每隔半小时'),
         'twohourly' => array('interval' => 7200, 'display' => '每隔两小时'),
