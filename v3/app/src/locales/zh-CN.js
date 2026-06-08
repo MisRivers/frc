@@ -180,6 +180,9 @@ export default {
     latest: '最新',
     startUpgrade: '开始升级',
     cronOptions: {
+      oneminutes: '每1分钟',
+      threeminutes: '每3分钟',
+      fiveminutes: '每5分钟',
       fifteenminutes: '每15分钟',
       halfhour: '每30分钟',
       hourly: '每小时',
